@@ -1,8 +1,7 @@
 <template>
   <div id="nav">
-    <span>helloworld</span>
-    <main-tab-bar></main-tab-bar>
     <router-view></router-view>
+    <main-tab-bar></main-tab-bar>
   </div>
   <!-- <router-view/> -->
 </template>
