@@ -11,7 +11,9 @@
     <home-swiper :banners="banners" />
     <recommend-view :recommends="recommends" />
     <feature-view />
-    <tab-control class="tab-control" :titles="['流行', '新款', '精选']" />
+    <tab-control class="tab-control" :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick" />
+    <goods-list :goods="showGoods" />
 
     <ul>
       <li>1</li>
@@ -75,6 +77,7 @@
 
   import NavBar from 'components/common/navbar/NavBar'
   import TabControl from 'components/content/tabControl/TabControl'
+  import GoodsList from 'components/content/goods/GoodsList.vue'
   
   import {
     getHomeMultidata,
@@ -88,7 +91,8 @@
       RecommendView,
       FeatureView,
       NavBar,
-      TabControl
+      TabControl,
+      GoodsList
     },
     data() {
       return {
@@ -98,7 +102,13 @@
           'pop': {page: 0, list: []},
           'new': {page: 0, list: []},
           'sell': {page: 0, list: []},
-        }
+        },
+        currentType: 'pop'
+      }
+    },
+    computed: {
+      showGoods() {
+        return this.goods[this.currentType].list
       }
     },
     created() {
@@ -107,13 +117,28 @@
 
       // 2.请求商品数据
       this.getHomeGoods('pop')
-      // this.getHomeGoods('new')
-      // this.getHomeGoods('sell')
+      this.getHomeGoods('new')
+      this.getHomeGoods('sell')
     },
     methods: {
+      // 事件监听相关方法
+      tabClick(index) {
+        switch (index) {
+          case 0:
+            this.currentType = 'pop'
+            break
+          case 1:
+            this.currentType = 'new'
+            break
+          case 2:
+            this.currentType = 'sell'
+            break
+        }
+      },
+
+      // 网络请求相关方法
       getHomeMultidata() {
         getHomeMultidata().then(res => {
-          console.log(res);
           this.banners = res.data.banner.list
           this.recommends = res.data.recommend.list
         }).catch(err => {
@@ -123,11 +148,11 @@
       getHomeGoods(type) {
         const page = this.goods[type].page + 1
         getHomeGoods(type, page).then(res => {
-          console.log("从后端传回来的信息 = ", res);
           this.goods[type].list = this.goods[type].list.concat(res.data.list)
           this.goods[type].page += 1
+          console.log(`从后端传回来的：type = ${type},res = ${res}`);
         }).catch(err => {
-          console.log('从后端传回来的错误信息：', err);
+          console.log(`从后端传回来的错误信息：type = ${type},err = ${err}`);
         })
       }
     }
@@ -153,5 +178,6 @@
   .tab-control {
     position: sticky;
     top: 44px;
+    z-index: 3;
   }
 </style>
